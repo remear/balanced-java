@@ -15,7 +15,14 @@ import com.balancedpayments.errors.NotCreated;
 
 public abstract class Resource {
 
-    protected static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    protected static final ThreadLocal<SimpleDateFormat> dateTimeFormat
+            = new ThreadLocal<SimpleDateFormat>(){
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        }
+    };
+
     protected Client client = new Client();
 
     @ResourceField()
@@ -141,7 +148,7 @@ public abstract class Resource {
         if (raw == null) return null;
         raw = raw.substring(0, 23) + raw.substring(26, raw.length());
         try {
-            return dateTimeFormat.parse(raw);
+            return dateTimeFormat.get().parse(raw);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
